@@ -1,1 +1,4 @@
 .DS_Store
+hw1-recognition-main/data
+*/runs
+*/*/__pycache__

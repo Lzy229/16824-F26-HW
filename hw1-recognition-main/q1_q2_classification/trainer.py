@@ -54,6 +54,9 @@ def train(args, model, optimizer, scheduler=None, model_name='model'):
             #   - `output`: Computed loss, a single floating point number
             ##################################################################
             loss = 0
+
+            loss = torch.sum((torch.log(output) * target + torch.log(1-output) * (1-output)) * wgt)
+            loss /= args.batch_size
             ##################################################################
             #                          END OF YOUR CODE                      #
             ##################################################################

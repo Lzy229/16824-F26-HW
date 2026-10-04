@@ -65,12 +65,25 @@ class VOCDataset(Dataset):
             # Loop through the `tree` to find all objects in the image
             #######################################################################
 
+            name_list_vec = []
+            name_list_weight = []
+            for object in tree.findall('object'):
+                name_list_vec.append(object.find('name').text)
+                if object.find('difficult').text == 1:
+                    name_list_weight.append(object.find('name').text)  
+
             #  The class vector should be a 20-dimensional vector with class[i] = 1 if an object of class i is present in the image and 0 otherwise
             class_vec = torch.zeros(20)
+            index = [self.get_class_index(name) for name in name_list_vec]
+            class_vec[[self.get_class_index(name) for name in name_list_vec]] = 1
 
             # The weight vector should be a 20-dimensional vector with weight[i] = 0 iff an object of class i has the `difficult` attribute set to 1 in the XML file and 1 otherwise
             # The difficult attribute specifies whether a class is ambiguous and by setting its weight to zero it does not contribute to the loss during training 
+            
             weight_vec = torch.ones(20)
+            index = []
+            weight_vec[[self.get_class_index(name) for name in name_list_weight]] = 0
+
 
             ######################################################################
             #                            END OF YOUR CODE                        #
@@ -92,7 +105,8 @@ class VOCDataset(Dataset):
         # change and you will have to write the correct value of `flat_dim`
         # in line 46 in simple_cnn.py
         ######################################################################
-        pass
+        transforms.RandomHorizontalFlip()
+        transforms.transforms.RandomCrop(32, padding=4)
         ######################################################################
         #                            END OF YOUR CODE                        #
         ######################################################################
