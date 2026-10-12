@@ -5,3 +5,4 @@ hw1-recognition-main/data
 */*/__pycache__
 */*/*/__pycache__
 */*/detection_logs
+*/experiments_results
