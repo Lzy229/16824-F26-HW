@@ -36,10 +36,12 @@ else:
     print("Please check your GPU (if running on AWS). Using CPU instead.")
     DEVICE = torch.device("cpu")
 
+# DEVICE = torch.device("cpu")
+
 NUM_CLASSES = 20
 BATCH_SIZE = 16
 IMAGE_SHAPE = (224, 224)
-NUM_WORKERS = 12
+NUM_WORKERS = 4
 DATASET_PATH = "../data"
 
 @dataclass
@@ -59,7 +61,7 @@ class HyperParameters:
 def create_dataset_and_dataloaders(subset=False):
     train_dataset = VOC2007DetectionTiny(
         DATASET_PATH, "train", image_size=IMAGE_SHAPE[0],
-        download=True# True (set to False after the first time)
+        download=False# True (set to False after the first time)
     )
     if subset:
         small_dataset = torch.utils.data.Subset(
@@ -118,7 +120,7 @@ def visualize_gt(train_dataset, val_dataset):
         # Remove padded boxes from visualization.
         is_valid = gt_boxes[:, 4] >= 0
         img = detection_visualizer(image, val_dataset.idx_to_class, gt_boxes[is_valid])
-        gt_images.append(torch.from_numpy(img))
+        gt_images.append(torch.from_numpy(img.copy()))
     
     img_grid = make_grid(gt_images, nrow=8)
     writer.add_image("train/gt_images", img_grid, global_step=idx)

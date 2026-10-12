@@ -105,8 +105,12 @@ class VOCDataset(Dataset):
         # change and you will have to write the correct value of `flat_dim`
         # in line 46 in simple_cnn.py
         ######################################################################
-        transforms.RandomHorizontalFlip()
-        transforms.transforms.RandomCrop(32, padding=4)
+        random_transforms = [
+            transforms.RandomHorizontalFlip()
+        ]
+
+        return random_transforms
+        
         ######################################################################
         #                            END OF YOUR CODE                        #
         ######################################################################
@@ -126,7 +130,7 @@ class VOCDataset(Dataset):
 
         trans = transforms.Compose([
             transforms.Resize((self.size, self.size)),
-            *self.get_random_augmentations(),
+            # *self.get_random_augmentations(),
             transforms.ToTensor(),
             transforms.Normalize(mean=[0.485, 0.457, 0.407], std=[0.229, 0.224, 0.225]),
         ])

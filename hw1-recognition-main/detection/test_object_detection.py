@@ -110,7 +110,7 @@ class TestDetectorBackboneWithFPN(unittest.TestCase):
         if _deltas is None:
             self.skipTest("FCOS get deltas_from test is not implemented.")
         output_box = fcos_apply_deltas_to_locations(_deltas, input_location, stride=8)
-        
+
         self.assertTrue(torch.equal(_deltas, torch.tensor([[-1., -1., -1., -1.]])))
         self.assertTrue(torch.equal(output_box, torch.tensor([[100., 200., 100., 200.]])))
 

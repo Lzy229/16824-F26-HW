@@ -55,7 +55,11 @@ def train(args, model, optimizer, scheduler=None, model_name='model'):
             ##################################################################
             loss = 0
 
-            loss = torch.sum((torch.log(output) * target + torch.log(1-output) * (1-output)) * wgt)
+            output = torch.nn.functional.softmax(output, dim=1)
+            num_classes = model.num_classes
+            # print(output)
+            # print(torch.isnan(output).any().item(), torch.isnan(target).any().item(), torch.isnan(wgt).any().item())
+            loss = -torch.sum((torch.log(output+1e-6) * target + torch.log(1-output+1e-6) * (1-target)) * wgt) / num_classes
             loss /= args.batch_size
             ##################################################################
             #                          END OF YOUR CODE                      #
