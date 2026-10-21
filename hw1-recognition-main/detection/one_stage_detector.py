@@ -606,10 +606,10 @@ class FCOS(nn.Module):
             
             # Step 2:
             # Replace "pass" statement with your code
-            mask = torch.where(level_scores > test_score_thresh)
+            mask = level_scores > test_score_thresh
 
-            level_scores = level_scores[mask]
-            level_classes = level_classes[mask]
+            level_pred_scores = level_scores[mask]
+            level_pred_classes = level_classes[mask]
             level_locations = level_locations[mask]
             level_deltas = level_deltas[mask]
 
@@ -620,8 +620,8 @@ class FCOS(nn.Module):
             # Step 4: Use `images` to get (height, width) for clipping.
             # Replace "pass" statement with your code
             _, _, H, W = images.shape
-            level_pred_boxes[:, [0, 2]] = torch.clip(level_pred_boxes[:, [0, 2]], 0, W)
-            level_pred_boxes[:, [1, 3]] = torch.clip(level_pred_boxes[:, [1, 3]], 0, H)
+            level_pred_boxes[:, [0, 2]] = torch.clamp(level_pred_boxes[:, [0, 2]], 0, W)
+            level_pred_boxes[:, [1, 3]] = torch.clamp(level_pred_boxes[:, [1, 3]], 0, H)
 
             ##################################################################
             #                          END OF YOUR CODE                      #

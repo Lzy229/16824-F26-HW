@@ -17,7 +17,7 @@ def save_this_epoch(args, epoch):
 
 def save_model(epoch, model_name, model):
     filename = 'checkpoint-{}-epoch{}.pth'.format(
-        model_name, epoch+1)
+        model_name, epoch)
     print("saving model at ", filename)
     torch.save(model, filename)
 
@@ -98,10 +98,13 @@ def train(args, model, optimizer, scheduler=None, model_name='model'):
             writer.add_scalar("learning_rate", scheduler.get_last_lr()[0], cnt)
 
         # save model
-        if save_this_epoch(args, epoch):
-            save_model(epoch, model_name, model)
+        # if save_this_epoch(args, epoch):
+        #     print("do model save")
+        #     save_model(epoch, model_name, model)
+    save_model(args.epochs, "resnet", model)
 
     # Validation iteration
     test_loader = utils.get_data_loader('voc', train=False, batch_size=args.test_batch_size, split='test', inp_size=args.inp_size)
+    print("done")
     ap, map = utils.eval_dataset_map(model, args.device, test_loader)
     return ap, map
