@@ -18,7 +18,18 @@ def ae_loss(model, x):
     ##################################################################
     # TODO 2.2: Fill in MSE loss between x and its reconstruction.
     ##################################################################
-    loss = None
+    B = x.shape[0]
+    
+    encode = model.encoder(x)
+    recon = model.decoder(encode)
+    
+    mseloss = torch.square(x - recon)
+
+    # loss = torch.sum(mseloss, dim=(1, 2, 3))
+
+    loss = torch.sum(mseloss)/B
+
+    # print(loss)
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################
@@ -38,9 +49,27 @@ def vae_loss(model, x, beta = 1):
     # closed form, you can find the formula here:
     # (https://stats.stackexchange.com/questions/318748/deriving-the-kl-divergence-loss-for-vaes).
     ##################################################################
-    total_loss = None
-    recon_loss = None
-    kl_loss = None
+    B = x.shape[0]
+    
+    mu, log_std = model.encoder(x)
+
+    epsilon = torch.randn(log_std.shape).cuda()
+    z = mu + log_std * epsilon
+
+    recon = model.decoder(z)
+
+    # the recon_loss
+    recon_loss = torch.sum(torch.square(x - recon)) / B
+
+    # the kl_loss
+    # print(torch.sum(torch.square(mu)), torch.sum(torch.square(log_std)), torch.sum(2 * torch.log(torch.square(log_std)) + 1))
+    kl_loss = 0.5 * ((torch.sum(torch.square(mu))) + (torch.sum(torch.square(log_std))) - torch.sum(torch.log(torch.square(log_std)) + 1)) / B
+    
+    total_loss = recon_loss + beta * kl_loss
+    # print("recon_loss = {}, kl_loss = {}".format(recon_loss, kl_loss))
+    print(total_loss)
+    # recon_loss = None
+    # kl_loss = None
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################
@@ -58,7 +87,7 @@ def linear_beta_scheduler(max_epochs=None, target_val = 1):
     # linearly from 0 at epoch 0 to target_val at epoch max_epochs.
     ##################################################################
     def _helper(epoch):
-        pass
+        return target_val * epoch / max_epochs
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################

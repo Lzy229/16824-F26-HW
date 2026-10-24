@@ -19,8 +19,8 @@ def build_transforms():
 
 def get_optimizers_and_schedulers(gen, disc):
     # Get optimizers and learning rate schedulers.
-    optim_discriminator = torch.optim.Adam(disc.parameters(), lr=2e-4, betas=(0, 0.9))
-    optim_generator = torch.optim.Adam(gen.parameters(), lr=2e-4, betas=(0, 0.9))
+    optim_discriminator = torch.optim.Adam(disc.parameters(), lr=2e-4, betas=(0.0, 0.9))
+    optim_generator = torch.optim.Adam(gen.parameters(), lr=2e-4, betas=(0.0, 0.9))
     ##################################################################
     # TODO 1.2: Construct the learning rate schedulers for the
     # generator and discriminator. The learning rate for the
@@ -28,8 +28,8 @@ def get_optimizers_and_schedulers(gen, disc):
     # The learning rate for the generator should be decayed to 0 over
     # 100K iterations.
     ##################################################################
-    scheduler_discriminator = None
-    scheduler_generator = None
+    scheduler_discriminator = torch.optim.lr_scheduler.LinearLR(optim_discriminator, start_factor=1.0, end_factor=0.0, total_iters=500000)
+    scheduler_generator = torch.optim.lr_scheduler.LinearLR(optim_generator, start_factor=1.0, end_factor=0.0, total_iters=100000)
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################
@@ -86,7 +86,7 @@ def train_model(
         scheduler_generator,
     ) = get_optimizers_and_schedulers(gen, disc)
 
-    scaler = torch.cuda.amp.GradScaler()
+    scaler = torch.amp.GradScaler('cuda')
 
     iters = 0
     fids_list = []
@@ -94,7 +94,8 @@ def train_model(
     pbar = tqdm(total = num_iterations)
     while iters < num_iterations:
         for train_batch in train_loader:
-            with torch.cuda.amp.autocast(enabled=amp_enabled):
+            B, _, _, _ = train_batch.shape
+            with torch.amp.autocast('cuda', enabled=amp_enabled):
                 train_batch = train_batch.cuda()
                 
                 ####################### UPDATE DISCRIMINATOR #####################
@@ -105,8 +106,14 @@ def train_model(
                 # 2. Compute discriminator output on the train batch.
                 # 3. Compute the discriminator output on the generated data.
                 ##################################################################
-                discrim_real = None
-                discrim_fake = None
+                # import pdb; pdb.set_trace()
+                
+                gen_output = gen(n_samples=B)
+                # the output is within (-1, 1)
+
+                # the output of discriminater should be (0, 1), because its a prabability. 
+                discrim_real = disc(train_batch)
+                discrim_fake = disc(gen_output.detach())
                 ##################################################################
                 #                          END OF YOUR CODE                      #
                 ##################################################################
@@ -115,8 +122,12 @@ def train_model(
                 # TODO 1.5 Compute the interpolated batch and run the
                 # discriminator on it.
                 ###################################################################
-                interp = None
-                discrim_interp = None
+
+                epsilon = torch.rand(B, 1, 1, 1).cuda()
+                epsilon = epsilon.expand_as(train_batch)
+                
+                interp = (epsilon * train_batch + (1 - epsilon) * gen_output.detach()).requires_grad_(True)
+                discrim_interp = disc(interp)
                 ##################################################################
                 #                          END OF YOUR CODE                      #
                 ##################################################################
@@ -124,6 +135,10 @@ def train_model(
             discriminator_loss = disc_loss_fn(
                 discrim_real, discrim_fake, discrim_interp, interp, lamb
             )
+            # if torch.isnan(discriminator_loss):
+            #     import pdb; pdb.set_trace()
+
+            print("discriminator_loss is {}".format(discriminator_loss))
             
             optim_discriminator.zero_grad(set_to_none=True)
             scaler.scale(discriminator_loss).backward()
@@ -131,18 +146,24 @@ def train_model(
             scheduler_discriminator.step()
 
             if iters % 5 == 0:
-                with torch.cuda.amp.autocast(enabled=amp_enabled):
+                with torch.amp.autocast('cuda', enabled=amp_enabled):
                     ##################################################################
                     # TODO 1.2: Compute generator and discriminator output on
                     # generated data.
                     ###################################################################
-                    fake_batch = None
-                    discrim_fake = None
+                    # fake_batch = gen.forward_given_samples(gen_output)
+                    fake_batch = gen(n_samples=B)
+                    discrim_fake = disc(fake_batch)
                     ##################################################################
                     #                          END OF YOUR CODE                      #
                     ##################################################################
 
                     generator_loss = gen_loss_fn(discrim_fake)
+
+                    # if torch.isnan(generator_loss):
+                    #     import pdb; pdb.set_trace()
+
+                    print("generator_loss is {}".format(generator_loss))
 
                 optim_generator.zero_grad(set_to_none=True)
                 scaler.scale(generator_loss).backward()
@@ -151,12 +172,19 @@ def train_model(
 
             if iters % log_period == 0 and iters != 0:
                 with torch.no_grad():
-                    with torch.cuda.amp.autocast(enabled=amp_enabled):
+                    with torch.amp.autocast('cuda', enabled=amp_enabled):
                         ##################################################################
                         # TODO 1.2: Generate samples using the generator.
                         # Make sure they lie in the range [0, 1]!
                         ##################################################################
-                        generated_samples = None
+                        # import pdb; pdb.set_trace()
+                        
+                        generated_samples = gen(n_samples=100)
+
+                        # the final activation function is tanh, so the results lie in (-1, 1), 
+                        # so we need to do a translation and 
+                        generated_samples = torch.clamp((generated_samples+1) / 2, 0, 1)
+                        # generated_samples = torch.clamp(generated_samples, 0, 1)
                         ##################################################################
                         #                          END OF YOUR CODE                      #
                         ##################################################################

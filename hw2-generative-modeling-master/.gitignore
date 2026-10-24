@@ -1,4 +1,4 @@
-vae_solutions/data/
+vae/data/
 gan/data_gan/
 gan/data_ls_gan/
 gan/data_wgan_gp/
@@ -9,9 +9,9 @@ gan_solutions/data_ls_gan/
 gan_solutions/data_wgan_gp/
 __pycache__
 
-diffusion_solutions/data_ddim/
-diffusion_solutions/data_ddpm/
-diffusion_solutions/epoch_199.pth
+diffusion/data_ddim/
+diffusion/data_ddpm/
+diffusion/epoch_199.pth
 
 flow_matching/flow_euler
 flow_matching/fm_final.pth

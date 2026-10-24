@@ -14,7 +14,18 @@ def get_fid(gen, dataset_name, dataset_resolution, z_dimension, batch_size, num_
     # diffusion model given z
     # Note: The output must be in the range [0, 255]!
     ##################################################################
-    gen_fn = None
+    
+    def gen_fn(z):
+        img_shape = (batch_size, 3, dataset_resolution, dataset_resolution)
+
+        # z = z.reshape(img_shape)
+
+        samples = gen.sample_given_z(z, img_shape)
+
+        samples = torch.clamp(samples * 255, 0, 255)
+
+        return samples
+
     ##################################################################
     #                          END OF YOUR CODE                      #
     ##################################################################

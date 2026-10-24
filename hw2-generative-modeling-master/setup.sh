@@ -1,5 +1,5 @@
 # Install dependencies
-python -m pip install -r requirements.txt
+# python -m pip install -r requirements.txt
 
 # Prepare folders
 mkdir -p $1/cleanfid/stats/
