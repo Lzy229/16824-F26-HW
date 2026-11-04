@@ -1,8 +1,11 @@
 .DS_Store
 hw1-recognition-main/data
+hw1-recognition-main/assignment_1
 */runs
 */*/runs
 */*/__pycache__
 */*/*/__pycache__
 */*/detection_logs
 */experiments_results
+hw2*/hw2_latex
+hw1*/assignment_1
