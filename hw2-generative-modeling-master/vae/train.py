@@ -67,7 +67,7 @@ def vae_loss(model, x, beta = 1):
     
     total_loss = recon_loss + beta * kl_loss
     # print("recon_loss = {}, kl_loss = {}".format(recon_loss, kl_loss))
-    print(total_loss)
+    print(recon_loss, kl_loss)
     # recon_loss = None
     # kl_loss = None
     ##################################################################

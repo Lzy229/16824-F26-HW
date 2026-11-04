@@ -21,7 +21,7 @@ def compute_discriminator_loss(
     # loss = loss_pt1 + loss_pt2
     ##################################################################
     # import pdb; pdb.set_trace()
-    B = discrim_real.shape[0]
+    B, C, H, W = interp.shape
 
     loss_pt1 = torch.mean(discrim_fake) - torch.mean(discrim_real)
 
@@ -31,7 +31,8 @@ def compute_discriminator_loss(
                                create_graph=True,
                                retain_graph=True,)[0]
 
-    grad = grad.view(B, -1)
+    # import pdb; pdb.set_trace()
+    grad = grad.reshape(B, C*H*W)
 
     grad_norm = grad.norm(2, dim=1)
 

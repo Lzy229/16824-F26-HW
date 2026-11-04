@@ -122,7 +122,7 @@ def train_model(
                 # TODO 1.5 Compute the interpolated batch and run the
                 # discriminator on it.
                 ###################################################################
-
+                # import pdb; pdb.set_trace()
                 epsilon = torch.rand(B, 1, 1, 1).cuda()
                 epsilon = epsilon.expand_as(train_batch)
                 
@@ -138,7 +138,7 @@ def train_model(
             # if torch.isnan(discriminator_loss):
             #     import pdb; pdb.set_trace()
 
-            print("discriminator_loss is {}".format(discriminator_loss))
+            # print("discriminator_loss is {}".format(discriminator_loss))
             
             optim_discriminator.zero_grad(set_to_none=True)
             scaler.scale(discriminator_loss).backward()
@@ -163,7 +163,7 @@ def train_model(
                     # if torch.isnan(generator_loss):
                     #     import pdb; pdb.set_trace()
 
-                    print("generator_loss is {}".format(generator_loss))
+                    # print("generator_loss is {}".format(generator_loss))
 
                 optim_generator.zero_grad(set_to_none=True)
                 scaler.scale(generator_loss).backward()

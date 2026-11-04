@@ -499,17 +499,17 @@ class Discriminator(torch.jit.ScriptModule):
 
         # print(layers_output.shape)
         B, C, H, W = layers_output.shape
-        layers_output = layers_output.reshape((B * H * W, C))
-        # layers_output = layers_output.sum(dim=(2, 3))
+        # layers_output = layers_output.reshape((B * H * W, C))
+        layers_output = layers_output.sum(dim=(2, 3))
 
         dense_output = self.dense(layers_output)
 
         # if torch.isnan(dense_output).any():
         #     print("dense in discriminater nan")
 
-        output = self.sigmoid(dense_output)
+        # output = self.sigmoid(dense_output)
 
-        return output
+        return dense_output
         ##################################################################
         #                          END OF YOUR CODE                      #
         ##################################################################

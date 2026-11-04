@@ -89,3 +89,5 @@ if __name__ == "__main__":
         log_period=1000,
         amp_enabled=not args.disable_amp,
     )
+
+# 58.50070644216686
