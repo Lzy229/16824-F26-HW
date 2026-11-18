@@ -50,9 +50,9 @@ class Trainer:
 
         
         # TODO - Compute cross entropy loss between predictions and labels. 
-        loss = None
+        # import pdb; pdb.set_trace()
+        loss = torch.nn.functional.cross_entropy(predictions, labels)
         
-
         return loss
 
     def train(self):
